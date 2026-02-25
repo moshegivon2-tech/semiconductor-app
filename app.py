@@ -5,84 +5,82 @@ import matplotlib.pyplot as plt
 # --- הגדרות דף ---
 st.set_page_config(page_title="Semiconductor Master Ariel", layout="wide")
 
-# --- CSS חזק לתיקון "מגדלי המספרים" והדולרים ---
+# --- CSS חזק לתיקון תצוגה ומניעת "מגדלי מספרים" ---
 st.markdown("""
     <style>
-    /* כיווניות כללית לימין */
     .stApp { direction: rtl; text-align: right; background-color: #fcfcfc; }
     
-    /* פתרון ה"מגדלים": מניעת שבירת שורות בתוך נוסחאות וכפיית כיוון LTR */
+    /* מניעת שבירת שורות בתוך נוסחאות וכפיית כיוון LTR */
     .katex { 
         direction: ltr !important; 
         display: inline-block !important; 
         white-space: nowrap !important;
-        unicode-bidi: isolate !important;
         font-size: 1.2em !important;
         color: #003366;
     }
     
-    /* עיצוב תיבת השאלה */
     .q-card {
         background-color: white;
-        padding: 30px;
+        padding: 25px;
         border-radius: 15px;
         border-right: 10px solid #004a99;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        margin-bottom: 25px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
     }
     
-    /* יישור תשובות */
-    div[role="radiogroup"] label { direction: rtl; text-align: right; display: block; padding: 12px 0; }
+    div[role="radiogroup"] label { direction: rtl; text-align: right; display: block; padding: 10px 0; }
     .stTabs [data-baseweb="tab-list"] { direction: rtl; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- מאגר שאלות מלא מכל הקבצים ---
+# --- מאגר שאלות מעודכן (הנתונים עברו לתשובות) ---
 if 'questions' not in st.session_state:
     st.session_state.questions = [
         # שאלה חישובית מהתמונה [cite: 16-20, 112-126]
         {
             "topic": "Physics", "type": "ni", 
-            "q": r"נתונה פיסת סיליקון בשיווי משקל בה $N_a = 10^{17} \text{ cm}^{-3}$ ו-$N_d = 9 \cdot 10^{16} \text{ cm}^{-3}$, וריכוז אינטרינזי $n_i = 10^{17} \text{ cm}^{-3}$. מהו ריכוז האלקטרונים $n$?", 
-            "opts": [r"(1) $9.5 \cdot 10^{16} \text{ cm}^{-3}$", r"(2) $9 \cdot 10^{16} \text{ cm}^{-3}$", r"(3) $10^{16} \text{ cm}^{-3}$", r"(4) $10^3 \text{ cm}^{-3}$", r"(5) $2 \cdot 10^3 \text{ cm}^{-3}$"], 
-            "ans": 0, "explain": r"משוואת ניטרליות המטען: $n + N_a = p + N_d$. עם $p = n_i^2/n$, פתרון המשוואה הריבועית נותן $9.5 \cdot 10^{16}$."
+            "q": "נתונה פיסת סיליקון בשיווי משקל. מהו ריכוז האלקטרונים בהינתן הנתונים הבאים?", 
+            "opts": [
+                r"(1) $N_a=10^{17}, N_d=9\cdot 10^{16}, n_i=10^{17} \rightarrow n = 9.5 \cdot 10^{16} \text{ cm}^{-3}$", 
+                r"(2) $N_a=10^{17}, N_d=9\cdot 10^{16}, n_i=10^{17} \rightarrow n = 9 \cdot 10^{16} \text{ cm}^{-3}$", 
+                r"(3) $N_a=10^{17}, N_d=9\cdot 10^{16}, n_i=10^{17} \rightarrow n = 10^{16} \text{ cm}^{-3}$", 
+                r"(4) $n = 10^3 \text{ cm}^{-3}$", 
+                r"(5) $n = 2 \cdot 10^3 \text{ cm}^{-3}$"
+            ], 
+            "ans": 0, "explain": "נשתמש במשוואה הריבועית לניטרליות מטען המביאה בחשבון את הריכוז האינטרינזי הגבוה."
         },
-        # שאלת הארה [cite: 4-14, 100-110]
-        {
-            "topic": "Illumination", "type": "decay", 
-            "q": "בוצעו שני ניסויים של הארת חצי דגם מל''מ, בראשון בעוצמה $P$ ובשני בעוצמה $4P$. המרחק הממוצע $L$ שחודר עודף המטען בחושך הינו:", 
-            "opts": ["(1) שווה בשני הניסויים.", "(2) כפול בניסוי השני.", "(3) פי ארבעה בניסוי השני.", "(4) גדול פי $4 \ln$ בניסוי השני.", "(5) גדול פי $e^4$ בניסוי השני."], 
-            "ans": 0, "explain": "מרחק הדיפוזיה $L = \\sqrt{D \tau}$ הוא תכונת חומר ואינו תלוי בעוצמת האור[cite: 110]."
-        },
-        # שאלת סימון בבסיס BJT [cite: 140-145]
+        # שאלה על BJT [cite: 39-56, 135-152]
         {
             "topic": "BJT", "type": "bjt", 
-            "q": "בטרנזיסטור ביפולרי, הגדלת ריכוז הסיגים בבסיס:", 
-            "opts": ["(1) מגדילה את הגבר הזרם האחורי.", "(2) מקטינה את הגבר הזרם הקדמי.", "(3) אינה משפיעה על הגבר הזרם האחורי.", "(4) אינה משפיעה על הגבר הזרם הקדמי.", "(5) מגדילה את הגבר הזרם הקדמי."], 
-            "ans": 1, "explain": "הגדלת סימום הבסיס מעלה את זרם המטענים מהבסיס לאמיטר ומורידה את יעילות ההזרקה."
+            "q": "נתון טרנזיסטור PNP הפועל בתחום הפעיל הקדמי. מהו זרם הבסיס לפי הפרמטרים הבאים?", 
+            "opts": [
+                r"(1) $\gamma=0.8, b=0.9, I_E=10mA \rightarrow I_B = 8 mA$", 
+                r"(2) $\gamma=0.8, b=0.9, I_E=10mA \rightarrow I_B = 9 mA$", 
+                r"(3) $\gamma=0.8, b=0.9, I_E=10mA \rightarrow I_B = 1 mA$", 
+                r"(4) $I_B = 2 mA$", 
+                r"(5) $\gamma=0.8, b=0.9, I_E=10mA \rightarrow I_B = 2.8 mA$"
+            ], 
+            "ans": 4, "explain": "הגבר הזרם הוא המכפלה של גמא ב-b, ומכאן מחשבים את זרם הקולט והבסיס."
         },
-        # שאלת דיודה אידיאלית קצרה [cite: 353-355]
+        # שאלה תיאורטית - מרחק דיפוזיה [cite: 4, 107-110]
         {
-            "topic": "PN Junction", "type": "iv", 
-            "q": r"בדיודת צומת אידאלית קצרה עם $D_e = 2D_h$ וסיגומים שווים:", 
-            "opts": ["(1) זרם האלקטרונים גדול פי 12 מזרם החורים.", "(2) זרם החורים גדול פי 2 מזרם האלקטרונים.", "(3) זרם האלקטרונים כפול מזרם החורים.", "(4) זרם החורים כפול מזרם האלקטרונים.", "(5) זרמי האלקטרונים והחורים שווים."], 
-            "ans": 2, "explain": "הזרם פרופורציונלי למקדם הדיפוזיה. בגלל $D_e = 2D_h$, זרם האלקטרונים יהיה כפול."
-        },
-        # שאלת NMOS בשגוי [cite: 61-63, 117-119]
-        {
-            "topic": "NMOS", "type": "cv", 
-            "q": "בטרנזיסטור NMOS איזה מהמשפטים הבאים שגוי תמיד:", 
-            "opts": ["(1) הזרם גדל עם עליית $V_{GS}$.", "(2) מטען האינברסיה בקרבת השפך גדול מאשר בקרבת המקור.", "(3) הזרם גדל מתכונתית לריבוע מתח השער.", "(4) אם הטרנזיסטור אינו קטוע, הזרם ממשיך לגדול עם עליית $V_{GS}$.", "(5) מתח השפך אף פעם לא קטן ממתח המקור."], 
-            "ans": 1, "explain": "בשל מפל המתח לאורך התעלה, ריכוז המטענים ליד המקור תמיד גדול יותר מאשר ליד השפך."
+            "topic": "Illumination", "type": "decay", 
+            "q": "כיצד משתנה המרחק הממוצע אותו יחדור עודף המטען בחלק החשוך אם נשנה את עוצמת ההארה?", 
+            "opts": [
+                "(1) עוצמת הארה P מול 4P -> המרחק שווה בשני הניסויים.", 
+                "(2) עוצמת הארה P מול 4P -> המרחק יוכפל בניסוי השני.", 
+                "(3) המרחק יגדל פי 4 בניסוי השני.", 
+                "(4) המרחק יגדל פי שורש 2.", 
+                "(5) המרחק יקטן פי 2."
+            ], 
+            "ans": 0, "explain": "מרחק הדיפוזיה תלוי רק בתכונות החומר (D ו-tau) ולא בעוצמת האור."
         }
     ]
 
-# --- לוגיקת האפליקציה ---
-st.title("🎓 סימולטור מל''מ - אוניברסיטת אריאל")
+# --- יצירת טאבים ---
+tab1, tab2 = st.tabs(["📝 סימולטור מבחן", "🧮 מחשבון ונתונים"])
 
-tab_sim, tab_calc = st.tabs(["📝 סימולטור מבחן", "🧮 מחשבון עזר"])
-
-with tab_sim:
+with tab1:
     if 'idx' not in st.session_state: st.session_state.idx = 0
     curr = st.session_state.questions[st.session_state.idx % len(st.session_state.questions)]
 
@@ -93,7 +91,7 @@ with tab_sim:
             <p style='font-size: 1.25rem;'>{curr['q']}</p>
         </div>""", unsafe_allow_html=True)
         
-        ans = st.radio("בחר תשובה:", curr['opts'], key=f"q_{st.session_state.idx}")
+        ans = st.radio("בחר תשובה (הנתונים מופיעים כאן):", curr['opts'], key=f"q_{st.session_state.idx}")
         
         c1, c2 = st.columns(2)
         with c1:
@@ -109,26 +107,37 @@ with tab_sim:
         st.write("### המחשה פיזיקלית")
         fig, ax = plt.subplots(figsize=(5, 4))
         if curr['type'] == "ni":
-            t = np.linspace(250, 600, 100); ni = 1e10 * (t/300)**3 * np.exp(-1.12/(2*8.6e-5*t))
-            ax.semilogy(t, ni, color='orange'); ax.set_title("Intrinsic Concentration")
+            t = np.linspace(250, 600, 100); ni_v = 1e10 * (t/300)**3 * np.exp(-1.12/(2*8.6e-5*t))
+            ax.semilogy(t, ni_v, color='orange'); ax.set_title("Intrinsic Concentration")
         elif curr['type'] == "decay":
             x = np.linspace(0, 5, 100); ax.plot(x, np.exp(-x), color='blue', lw=2); ax.set_title("Carrier Decay")
-        elif curr['type'] == "field":
-            x = np.linspace(-2, 2, 100); e = np.where(x < 0, 1+x, 1-2*x); e[x>0.5]=0; e[x<-1.5]=0
-            ax.fill_between(x, e, color='red', alpha=0.3); ax.set_title("Electric Field")
+        elif curr['type'] == "bjt":
+            ax.add_patch(plt.Rectangle((0.1, 0.3), 0.2, 0.4, color='blue', alpha=0.3)); ax.text(0.15, 0.5, "E")
+            ax.add_patch(plt.Rectangle((0.3, 0.3), 0.1, 0.4, color='red', alpha=0.3)); ax.text(0.32, 0.5, "B")
+            ax.add_patch(plt.Rectangle((0.4, 0.3), 0.4, 0.4, color='green', alpha=0.3)); ax.text(0.55, 0.5, "C")
+            ax.axis('off')
         st.pyplot(fig)
 
-with tab_calc:
-    st.header("🧮 מחשבון ריכוזי מטענים (שיווי משקל)")
-    st.write("מחשב את $n$ ו-$p$ לפי משוואת ניטרליות המטען המלאה.")
-    col_i1, col_i2, col_i3 = st.columns(3)
-    with col_i1: na_val = st.number_input("$N_a$ [cm⁻³]", value=1.0e17, format="%.2e")
-    with col_i2: nd_val = st.number_input("$N_d$ [cm⁻³]", value=9.0e16, format="%.2e")
-    with col_i3: ni_val = st.number_input("$n_i$ [cm⁻³]", value=1.0e17, format="%.2e")
-    diff = na_val - nd_val
-    n_res = (-diff + np.sqrt(diff**2 + 4*ni_val**2)) / 2
-    p_res = ni_val**2 / n_res
+with tab2:
+    st.header("🧮 נתונים פיזיקליים ומחשבון")
+    
+    st.subheader("📋 קבועים חשובים (ב-300K)")
+    st_c1, st_c2, st_c3 = st.columns(3)
+    st_c1.latex(r"q = 1.6 \cdot 10^{-19} \text{ C}")
+    st_c2.latex(r"k = 8.617 \cdot 10^{-5} \text{ eV/K}")
+    st_c3.latex(r"\epsilon_{Si} = 11.7 \cdot \epsilon_0")
+    
     st.divider()
-    r1, r2 = st.columns(2)
-    r1.metric("ריכוז אלקטרונים $n$", f"{n_res:.3e}")
-    r2.metric("ריכוז חורים $p$", f"{p_res:.3e}")
+    st.write("### מחשבון ריכוזים מהיר")
+    col_i1, col_i2, col_i3 = st.columns(3)
+    with col_i1: na_v = st.number_input("$N_a$ [cm⁻³]", value=1.0e17, format="%.2e")
+    with col_i2: nd_v = st.number_input("$N_d$ [cm⁻³]", value=9.0e16, format="%.2e")
+    with col_i3: ni_v = st.number_input("$n_i$ [cm⁻³]", value=1.0e17, format="%.2e")
+    
+    diff = na_v - nd_v
+    n_res = (-diff + np.sqrt(diff**2 + 4*ni_v**2)) / 2
+    p_res = ni_v**2 / n_res
+    
+    st.write(f"**תוצאה:**")
+    st.latex(r"n = " + f"{n_res:.3e}" + r" \text{ cm}^{-3}")
+    st.latex(r"p = " + f"{p_res:.3e}" + r" \text{ cm}^{-3}")
