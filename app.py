@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # --- הגדרות דף ---
-st.set_page_config(page_title="Semiconductor Master Ariel", layout="wide")
+st.set_page_config(page_title="Semiconductor Ariel", layout="wide")
 
 # --- CSS חזק לתיקון RTL, מניעת "מגדלי מספרים" והצגת נוסחאות ---
 st.markdown("""
