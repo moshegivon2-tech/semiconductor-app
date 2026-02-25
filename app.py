@@ -1,23 +1,21 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from bidi.algorithm import get_display
-import arabic_reshaper
 
 # --- הגדרות דף ---
-st.set_page_config(page_title="Ariel Semiconductor Master", layout="wide")
+st.set_page_config(page_title="Semiconductor Master Ariel", layout="wide")
 
-# פונקציה לתיקון עברית בגרפים
-def heb(text):
-    if not text: return ""
-    return get_display(arabic_reshaper.reshape(text))
-
-# --- CSS חזק לתיקון RTL ושמירה על המספרים בשורה אחת ---
+# --- CSS חזק לנעילת המספרים והנוסחאות בשורה אחת ---
 st.markdown("""
     <style>
-    .stApp { direction: rtl; text-align: right; background-color: #f8f9fa; }
+    /* כיווניות כללית לימין */
+    .stApp { 
+        direction: rtl; 
+        text-align: right; 
+        background-color: #f8f9fa; 
+    }
     
-    /* מניעת שבירת שורות במספרים ונוסחאות - הפתרון לבעיית ה"מגדלים" */
+    /* פתרון ה"מגדלים": מניעת שבירה וכפיית כיוון LTR לנוסחאות בלבד */
     .katex { 
         direction: ltr !important; 
         display: inline-block !important; 
@@ -26,45 +24,57 @@ st.markdown("""
         font-size: 1.1em !important;
     }
     
+    /* עיצוב תיבת השאלה */
     .q-card {
         background-color: white;
-        padding: 20px;
+        padding: 25px;
         border-radius: 12px;
         border-right: 8px solid #1e3a8a;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         margin-bottom: 20px;
     }
     
-    div[role="radiogroup"] label { direction: rtl; text-align: right; display: block; }
+    /* יישור תשובות */
+    div[role="radiogroup"] label { 
+        direction: rtl; 
+        text-align: right; 
+        display: block; 
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# --- מאגר שאלות מלא  [cite: 1-603, 112-126, 117] ---
+# --- מאגר שאלות מלא ---
 if 'questions' not in st.session_state:
     st.session_state.questions = [
+        # שאלה חישובית מהתמונה
         {
             "topic": "Physics", 
             "type": "ni", 
             "q": "נתונה פיסת סיליקון בשיווי משקל בה סיגים נוטלים ($N_a$) בריכוז $10^{17} \\text{ cm}^{-3}$ ותורמים ($N_d$) בריכוז $9 \\cdot 10^{16} \\text{ cm}^{-3}$, וריכוז אינטרינזי ($n_i$) של $10^{17} \\text{ cm}^{-3}$. מהו ריכוז האלקטרונים ($n$)?", 
-            "opts": ["(1) $9.5 \\cdot 10^{16} \\text{ cm}^{-3}$", "(2) $9 \\cdot 10^{16} \\text{ cm}^{-3}$", "(3) $10^{16} \\text{ cm}^{-3}$", "(4) $10^3 \\text{ cm}^{-3}$", "(5) $2 \\cdot 10^3 \\text{ cm}^{-3}$"], 
+            "opts": [
+                "(1) $9.5 \\cdot 10^{16} \\text{ cm}^{-3}$", 
+                "(2) $9 \\cdot 10^{16} \\text{ cm}^{-3}$", 
+                "(3) $10^{16} \\text{ cm}^{-3}$", 
+                "(4) $10^3 \\text{ cm}^{-3}$", 
+                "(5) $2 \\cdot 10^3 \\text{ cm}^{-3}$"
+            ], 
             "ans": 0, 
-            "explain": "מכיוון ש-$n_i$ גבוה, משתמשים במשוואה הריבועית: $n^2 + (N_a - N_d)n - n_i^2 = 0$. פתרון המשוואה נותן $9.5 \\cdot 10^{16}$[cite: 117]."
+            "explain": "נשתמש במשוואה הריבועית לניטרליות מטען: $n^2 + (N_a - N_d)n - n_i^2 = 0$. פתרון המשוואה עבור הנתונים נותן בדיוק $9.5 \\cdot 10^{16}$."
         },
-        {
-            "topic": "Illumination", 
-            "type": "decay", 
-            "q": "מאירים חצי דגם סיליקון סוג $N$ ארוך בהזרקה חלשה. כתוצאה:", 
-            "opts": ["(1) ריכוז עודף האלק' גדול מריכוז עודף החורים בכל ההתקן.", "(2) ריכוז עודף האלק' גדול מריכוז עודף החורים בחלק המואר בלבד.", "(3) ריכוז עודף האלק' גדול מריכוז עודף החורים בחלק החשוך בלבד.", "(4) ריכוז עודף האלק' גדול בחלק המואר מריכוזם בחלק החשוך.", "(5) ריכוז האלק' קבוע בחלק החשוך."], 
-            "ans": 3, 
-            "explain": "ריכוז המטענים העודפים מקסימלי באזור המואר ודועך אקספוננציאלית לתוך האזור החשוך[cite: 4]."
-        },
+        # [cite_start]שאלת דיודה מהמבחן [cite: 31-36]
         {
             "topic": "PN Junction", 
             "type": "field", 
             "q": "בדיודת צומת, איזה מהמשפטים הבאים שגוי תמיד?", 
-            "opts": ["(6) המתח המובנה נופל בעקרו על הצד בעל ריכוז הסיגים הנמוך.", "(7) השדה החשמלי מקסימלי בצומת בנקודת הצומת המטלורגי.", "(8) הזרם בממתח אחורי גדל (בגודלו) עם המתח.", "(9) הזרם בממתח קדמי גדול בדיודה ארוכה מאשר בקצרה.", "(10) המתח הכולל על הצומת בממתח קדמי קטן מהמתח המובנה."], 
+            "opts": [
+                "(1) המתח המובנה נופל בעקרו על הצד בעל ריכוז הסיגים הנמוך.", 
+                "(2) השדה החשמלי מקסימלי בצומת בנקודת הצומת המטלורגי.", 
+                "(3) הזרם בממתח אחורי גדל (בגודלו) עם המתח.", 
+                "(4) הזרם בממתח קדמי גדול בדיודה ארוכה מאשר בקצרה.", 
+                "(5) המתח הכולל על הצומת בממתח קדמי קטן מהמתח המובנה."
+            ], 
             "ans": 3, 
-            "explain": "בדיודה קצרה הגרדיאנט חד יותר, ולכן הזרם בה תמיד גדול יותר מאשר בדיודה ארוכה[cite: 35]."
+            [cite_start]"explain": "בדיודה קצרה הגרדיאנט חד יותר, ולכן הזרם בה תמיד גדול יותר מאשר בדיודה ארוכה[cite: 35]."
         }
     ]
 
@@ -78,7 +88,7 @@ col1, col2 = st.columns([1.6, 1])
 
 with col1:
     st.markdown(f"""<div class='q-card'>
-        <p style='color: #1e3a8a; font-weight: bold;'>שאלה {st.session_state.idx + 1} | נושא: {heb(curr['topic'])}</p>
+        <p style='color: #1e3a8a; font-weight: bold;'>שאלה {st.session_state.idx + 1} | נושא: {curr['topic']}</p>
         <p style='font-size: 1.2rem;'>{curr['q']}</p>
     </div>""", unsafe_allow_html=True)
     
@@ -104,10 +114,6 @@ with col2:
         ni_v = 1e10 * (temp/300)**3 * np.exp(-1.12/(2*8.6e-5*temp))
         ax.semilogy(temp, ni_v, color='orange')
         ax.set_title("Intrinsic Carrier Concentration")
-    elif t_type == "decay":
-        x = np.linspace(0, 5, 100)
-        ax.plot(x, np.exp(-x), color='blue', lw=2)
-        ax.set_title("Minority Carrier Decay")
     elif t_type == "field":
         x = np.linspace(-2, 2, 100)
         e = np.where(x < 0, 1+x, 1-2*x)
@@ -118,4 +124,4 @@ with col2:
     st.pyplot(fig)
 
 st.divider()
-st.caption("מבוסס על מקבצי השאלות הרשמיים  [cite: 1-603]")
+[cite_start]st.caption("מבוסס על מקבצי השאלות הרשמיים [cite: 1-507]")
